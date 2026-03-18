@@ -1,0 +1,16 @@
+method_name: "MATEval Simple"
+description: "Simple MATEval with 3 API calls per problem"
+api_calls_per_problem: 3
+evaluation_dimensions:
+  - "Mathematical Correctness"
+  - "Logical Consistency"
+  - "Clarity of Explanation"
+  - "Completeness of Solution"
+  - "Pedagogical Value"
+agents:
+  - name: "Mike"
+    role: "First Mathematical Expert"
+  - name: "John"
+    role: "Second Mathematical Expert"
+  - name: "Coordinator"
+    role: "Final Decision Maker" 

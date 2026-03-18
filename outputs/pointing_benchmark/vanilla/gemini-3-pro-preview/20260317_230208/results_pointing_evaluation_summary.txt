@@ -1,0 +1,17 @@
+============================================================
+JUDGE TASK EVALUATION REPORT
+============================================================
+
+Input File: outputs\pointing_benchmark\vanilla\gemini-3-pro-preview\20260317_230208\results.jsonl
+Evaluation Time: 2026-03-17T23:02:37.420986
+
+SUMMARY:
+------------------------------
+Total Samples: 1
+Valid Samples: 1
+Correct Predictions: 0
+Error Samples: 0
+Failed Extractions: 0
+Invalid Score Range: 0
+Performance Score: 100.00%
+

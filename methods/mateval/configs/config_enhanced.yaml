@@ -1,0 +1,32 @@
+method_name: "MATEval Enhanced"
+description: "Enhanced MATEval with DeepSeek Prover V2 as Mathematical Expert"
+api_calls_per_problem: 4
+evaluation_dimensions:
+  - "Mathematical Correctness"
+  - "Logical Consistency"
+  - "Clarity of Explanation"
+  - "Completeness of Solution"
+  - "Pedagogical Value"
+models:
+  mathematical_expert: "deepseek-prover-v2"
+  general_evaluators: "gpt5"
+agents:
+  - name: "Mathematical Expert"
+    role: "Rigorous Mathematical Analysis"
+    model: "deepseek-prover-v2"
+    specialization: "Proof verification and mathematical reasoning"
+  - name: "Evaluator 1"
+    role: "Clarity and Educational Value Assessment"
+    model: "gpt5"
+    focus: ["clarity", "pedagogy"]
+  - name: "Evaluator 2"
+    role: "Completeness and Logical Consistency Assessment"
+    model: "gpt5"
+    focus: ["completeness", "logical_consistency"]
+  - name: "Coordinator"
+    role: "Final Decision Synthesis"
+    model: "gpt5"
+features:
+  - "Mathematical Expert Analysis"
+  - "Multi-perspective Evaluation"
+  - "Decision Synthesis" 

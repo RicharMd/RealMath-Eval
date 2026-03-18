@@ -1,0 +1,26 @@
+{
+  "evaluation_time": "2026-03-17T23:12:51.575597",
+  "input_file": "outputs\\realmath_eval\\vanilla\\gemini-3-pro-preview\\20260317_231220\\results.jsonl",
+  "dataset_type": null,
+  "summary": {
+    "total_samples": 1,
+    "valid_samples": 1,
+    "correct_predictions": 0,
+    "error_samples": 0,
+    "failed_extractions": 0,
+    "invalid_score_range": 0,
+    "performance_score": 100,
+    "performance_percentage": "100.00%",
+    "mse_loss": 0.0
+  },
+  "detailed_results": [
+    {
+      "sample_id": 1,
+      "gt": 3,
+      "predicted_score": 3.0,
+      "has_error": false,
+      "extraction_failed": false,
+      "invalid_score_range": false
+    }
+  ]
+}

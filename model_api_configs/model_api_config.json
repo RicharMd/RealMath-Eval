@@ -1,0 +1,32 @@
+{
+    "gpt-4o-mini": {
+        "model_list": [
+            {"model_name": "gpt-4o-mini", "model_url": "https://api.openai.com/v1", "api_key": "sk-your-openai-api-key"}
+        ],
+        "max_workers_per_model": 10
+    },
+    "gemini-3-pro-preview": {
+        "model_list": [
+            {"model_name": "gemini-3-pro-preview", "model_url": "https://api.example.com/v1", "api_key": "your-gemini-api-key"}
+        ],
+        "max_workers_per_model": 10
+    },
+    "gemini-3-flash-preview": {
+        "model_list": [
+            {"model_name": "gemini-3-flash-preview", "model_url": "https://api.example.com/v1", "api_key": "your-gemini-api-key"}
+        ],
+        "max_workers_per_model": 10
+    },
+    "openrouter-example": {
+        "model_list": [
+            {"model_name": "openai/gpt-4o-mini", "model_url": "https://openrouter.ai/api/v1", "api_key": "sk-or-v1-your-openrouter-key"}
+        ],
+        "max_workers_per_model": 10
+    },
+    "local-vllm-example": {
+        "model_list": [
+            {"model_name": "Qwen/Qwen2.5-7B-Instruct", "model_url": "http://localhost:8000/v1", "api_key": ""}
+        ],
+        "max_workers_per_model": 4
+    }
+}
