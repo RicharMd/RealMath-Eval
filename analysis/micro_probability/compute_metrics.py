@@ -259,6 +259,16 @@ def process_segment(
     return item
 
 
+def _default_step_split_input() -> str:
+    """Default: human step-split JSONL under analysis/data/error_segment_bundle."""
+    return str(
+        Path(__file__).resolve().parent.parent
+        / "data"
+        / "error_segment_bundle"
+        / "human_error_steps_step_split.jsonl"
+    )
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Compute logit length between adjacent steps using Qwen3-8B."
@@ -266,8 +276,9 @@ def main():
     parser.add_argument(
         "--input-file",
         type=str,
-        required=True,
-        help="Input JSONL file (results_step_extracted.jsonl)",
+        default=None,
+        help="Input JSONL with 'steps' field (e.g. human_error_steps_step_split.jsonl). "
+             "Default: analysis/data/error_segment_bundle/human_error_steps_step_split.jsonl",
     )
     parser.add_argument(
         "--output-file",
@@ -319,7 +330,10 @@ def main():
     )
     
     args = parser.parse_args()
-    
+
+    if args.input_file is None:
+        args.input_file = _default_step_split_input()
+
     # Determine device
     device = f"cuda:{args.gpu_id}" if torch.cuda.is_available() else "cpu"
     print(f"Using device: {device}")

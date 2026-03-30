@@ -1,5 +1,6 @@
 import json
 import argparse
+from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -20,8 +21,10 @@ from scipy.cluster.hierarchy import linkage, leaves_list
 # Default model: HuggingFace ID (auto-downloads if not cached)
 # Override with --model-path for local path, e.g. /path/to/Qwen-Qwen3-Embedding-8B
 DEFAULT_MODEL = "Qwen/Qwen3-Embedding-8B"
-HUMAN_DATA_PATH = "clustering_final_human.jsonl"
-LLM_DATA_PATH = "clustering_segments_review_llm.jsonl"
+_SCRIPT_DIR = Path(__file__).resolve().parent
+_DEFAULT_DATA_DIR = _SCRIPT_DIR.parent / "data" / "error_segment_bundle"
+HUMAN_DATA_PATH = "human_error_segments.jsonl"
+LLM_DATA_PATH = "llm_error_segments.jsonl"
 STATS_OUTPUT_FILE = "clustering_statistics_summary.txt"
 
 def load_data(filepath, source_label):
@@ -133,8 +136,8 @@ def main():
     parser.add_argument(
         "--data-dir",
         type=str,
-        default=".",
-        help="Directory containing clustering_final_human.jsonl and clustering_segments_review_llm.jsonl",
+        default=str(_DEFAULT_DATA_DIR),
+        help="Directory containing human_error_segments.jsonl and llm_error_segments.jsonl (default: analysis/data/error_segment_bundle)",
     )
     parser.add_argument(
         "--output-dir",
@@ -237,8 +240,8 @@ def main():
     stats['noise_ratio_llm'] = list(labels_llm).count(-1) / len(labels_llm)
     stats['n_clusters_human'] = len(set(labels_human)) - (1 if -1 in labels_human else 0)
     stats['n_clusters_llm'] = len(set(labels_llm)) - (1 if -1 in labels_llm else 0)
-    stats['silhouette_score_human'] = plot_silhouette(emb_human, labels_human, "Human Error Clusters", "exp4_silhouette_human.png")
-    stats['silhouette_score_llm'] = plot_silhouette(emb_llm, labels_llm, "LLM Error Clusters", "exp4_silhouette_llm.png")
+    stats['silhouette_score_human'] = plot_silhouette(emb_human, labels_human, "Human Error Clusters", os.path.join(out_dir, "exp4_silhouette_human.png"))
+    stats['silhouette_score_llm'] = plot_silhouette(emb_llm, labels_llm, "LLM Error Clusters", os.path.join(out_dir, "exp4_silhouette_llm.png"))
 
     # --- Exp 5: GMM BIC (New!) ---
     print("\n--- Exp 5: GMM BIC Analysis ---")

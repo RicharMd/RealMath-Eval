@@ -32,9 +32,11 @@ RealMath-Eval/
 │   ├── windows/run/            # PowerShell scripts (judge_realmath_eval.ps1, etc.)
 │   └── linux/run/              # Bash scripts (judge_realmath_eval.sh, etc.)
 ├── analysis/                   # 🔬 Analytical Probes (Section 5)
+│   ├── data/error_segment_bundle/  # Error segments + step splits (macro & micro inputs)
 │   ├── macro_embedding/        # "The Crystal vs The Cloud" (Embedding & Clustering)
 │   ├── micro_probability/      # "Generative Surprisal" (Logit Probability)
-│   └── analyze_results.py      # Basic Metrics (MSE, Failure Rate)
+│   ├── analyze_results.py      # Basic Metrics (MSE, Failure Rate)
+│   └── requirements_analysis.txt
 ├── eval/                       # 📝 Scoring Scripts
 │   └── scorer.py               # Robust Score Extraction & Calculation
 ├── assets/                     # 🖼️ Paper Figures (Heatmaps, PCA, etc.)
@@ -178,9 +180,10 @@ Analyze the semantic geometry of error types using embeddings (Section 5.1).
 cd analysis/macro_embedding
 python run_analysis.py --model-path Qwen/Qwen3-Embedding-8B --output-dir ../../assets
 # Or use local path: --model-path /path/to/Qwen-Qwen3-Embedding-8B
+# Default --data-dir: ../data/error_segment_bundle (human_error_segments.jsonl, llm_error_segments.jsonl)
 ```
 
-*   **Input**: `clustering_final_human.jsonl`, `clustering_segments_review_llm.jsonl` (in `analysis/macro_embedding/`)
+*   **Input** (default): `analysis/data/error_segment_bundle/human_error_segments.jsonl`, `llm_error_segments.jsonl`
 *   **Output**: Heatmaps, PCA plots, Silhouette scores (saved to `--output-dir`).
 
 ### Micro-Level: Generative Surprisal
@@ -188,11 +191,12 @@ Measure the information-theoretic "surprise" of human reasoning steps (Section 5
 
 ```bash
 python analysis/micro_probability/compute_metrics.py \
-  --input-file path/to/results_step_extracted.jsonl \
   --model-path Qwen/Qwen3-8B \
   --use-quantization  # optional, for 4-bit if GPU memory limited
+# Override input: --input-file analysis/data/error_segment_bundle/human_error_steps_step_split.jsonl
 ```
 
+*   **Input** (default): `analysis/data/error_segment_bundle/human_error_steps_step_split.jsonl` (must include `steps` field)
 *   **Method**: Computes the Logical Likelihood (LL) of the ground-truth next step given the context.
 *   **Note**: Use `--no-download` to require a local model path only (no HuggingFace download).
 
