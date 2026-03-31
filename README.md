@@ -12,7 +12,6 @@ Release scope: this repository releases the processed benchmark and analysis art
 ## Links
 
 - arXiv preprint: [XXXX.XXXXX](https://arxiv.org/abs/XXXX.XXXXX) *(replace with final arXiv ID after posting)*
-- <img src="GitHub_Mark.png" alt="GitHub" width="16"/> GitHub repository: [RicharMd/RealMath-Eval](https://github.com/RicharMd/RealMath-Eval)
 - <img src="hf-logo.png" alt="Hugging Face" width="16"/> Hugging Face dataset: [RicharMd/RealMath-Eval](https://huggingface.co/datasets/RicharMd/RealMath-Eval)
 
 The GitHub repository is the primary home for code, prompts, scripts, and auxiliary analysis artifacts. The Hugging Face dataset hosts the core benchmark files together with selected released derived data artifacts.
