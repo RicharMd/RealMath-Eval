@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Compute logit length between adjacent steps in segment step-split results.
+Compute Logical Likelihood (LL) between adjacent steps in segment step-split results.
 
 For each segment with steps [step_0, step_1, ..., step_N-1]:
 - For each k from 0 to N-2:
@@ -8,9 +8,9 @@ For each segment with steps [step_0, step_1, ..., step_N-1]:
   - Forward pass with Qwen3-8B → get logits at last token position
   - Tokenize step_k+1
   - For each token t in step_k+1: compute softmax(logits[-1])[t]
-  - Take maximum of these probabilities → logit_length_max (max probability) for step_k → step_k+1
+  - Take the maximum of these probabilities as the transition Logical Likelihood
 
-Output: JSONL with original fields + logit_lengths (list of floats, length = num_steps - 1)
+Output: JSONL with original fields + logical_likelihoods (list of floats, length = num_steps - 1)
 """
 
 import json
@@ -19,7 +19,7 @@ import torch
 import torch.nn.functional as F
 from pathlib import Path
 from tqdm import tqdm
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import sys
 
 try:
@@ -97,17 +97,17 @@ def load_model_with_quantization(model_path: str, device: str, use_quantization:
     return model, tokenizer
 
 
-def compute_logit_length_for_transition(
+def compute_logical_likelihood_for_transition(
     model,
     tokenizer,
     context_steps: List[str],
     next_step: str,
     device: str,
     verbose: bool = False,
-    transition_idx: int = None,
+    transition_idx: Optional[int] = None,
 ) -> float:
     """
-    Compute logit length (max probability) for step_k → step_k+1.
+    Compute Logical Likelihood (max token probability) for step_k → step_k+1.
     
     Args:
         context_steps: List of steps [step_0, ..., step_k] (concatenated as context)
@@ -117,7 +117,7 @@ def compute_logit_length_for_transition(
         transition_idx: Index of this transition (for logging)
     
     Returns:
-        Max logit length (maximum probability among next_step tokens given context)
+        Logical Likelihood score (maximum probability among next_step tokens given context)
     """
     # Concatenate context steps (with newlines as separators)
     context_text = "\n".join(context_steps)
@@ -197,7 +197,7 @@ def compute_logit_length_for_transition(
                 except:
                     print(f"      [{tid.item():6d}] {prob:.8f} ({prob*100:.6f}%)")
     
-    # Return max logit length (maximum probability among next_step tokens)
+    # Return transition Logical Likelihood.
     return max_prob
 
 
@@ -208,16 +208,21 @@ def process_segment(
     device: str,
     verbose: bool = False,
 ) -> Dict[str, Any]:
-    """Process one segment: compute logit lengths for all adjacent step pairs."""
+    """Process one segment: compute Logical Likelihood scores for all adjacent step pairs."""
     steps = item.get("steps", [])
     num_steps = len(steps)
     
     if num_steps < 2:
         # Need at least 2 steps to compute a transition
-        item["logit_lengths"] = []
-        item["logit_length_max"] = None
-        item["logit_length_computation_ok"] = False
-        item["logit_length_note"] = "insufficient_steps"
+        item["logical_likelihoods"] = []
+        item["logical_likelihood_max"] = None
+        item["logical_likelihood_computation_ok"] = False
+        item["logical_likelihood_note"] = "insufficient_steps"
+        # Keep legacy aliases for backward compatibility with older artifacts.
+        item["logit_lengths"] = item["logical_likelihoods"]
+        item["logit_length_max"] = item["logical_likelihood_max"]
+        item["logit_length_computation_ok"] = item["logical_likelihood_computation_ok"]
+        item["logit_length_note"] = item["logical_likelihood_note"]
         return item
     
     if verbose:
@@ -225,7 +230,7 @@ def process_segment(
         print(f"Processing segment: row_id={item.get('row_id')}, num_steps={num_steps}")
         print(f"{'='*80}")
     
-    logit_lengths = []
+    logical_likelihoods = []
     
     # For each k from 0 to num_steps-2: step_k → step_k+1
     for k in range(num_steps - 1):
@@ -233,28 +238,35 @@ def process_segment(
         next_step = steps[k+1]  # step_k+1
         
         try:
-            logit_length = compute_logit_length_for_transition(
+            ll_score = compute_logical_likelihood_for_transition(
                 model, tokenizer, context_steps, next_step, device,
                 verbose=verbose, transition_idx=k
             )
-            logit_lengths.append(logit_length)
+            logical_likelihoods.append(ll_score)
             if verbose:
-                print(f"    ✓ Result: {logit_length:.8f} ({logit_length*100:.6f}%)")
+                print(f"    ✓ LL: {ll_score:.8f} ({ll_score*100:.6f}%)")
         except Exception as e:
             if verbose:
                 print(f"    ✗ Error: {e}")
-            print(f"Warning: Failed to compute logit length for step {k}→{k+1}: {e}")
-            logit_lengths.append(None)
+            print(f"Warning: Failed to compute Logical Likelihood for step {k}→{k+1}: {e}")
+            logical_likelihoods.append(None)
     
-    # Add results to item
-    item["logit_lengths"] = logit_lengths
-    valid_lengths = [x for x in logit_lengths if x is not None]
-    # Segment-level statistic: maximum transition logit length in this segment
-    item["logit_length_max"] = (
+    # Add canonical LL results to the item.
+    item["logical_likelihoods"] = logical_likelihoods
+    valid_lengths = [x for x in logical_likelihoods if x is not None]
+    # Segment-level statistic: maximum transition LL in this segment.
+    item["logical_likelihood_max"] = (
         max(valid_lengths) if valid_lengths else None
     )
-    item["logit_length_computation_ok"] = all(x is not None for x in logit_lengths)
-    item["logit_length_note"] = "ok" if item["logit_length_computation_ok"] else "partial_failure"
+    item["logical_likelihood_computation_ok"] = all(x is not None for x in logical_likelihoods)
+    item["logical_likelihood_note"] = (
+        "ok" if item["logical_likelihood_computation_ok"] else "partial_failure"
+    )
+    # Keep legacy aliases for backward compatibility with older artifacts.
+    item["logit_lengths"] = item["logical_likelihoods"]
+    item["logit_length_max"] = item["logical_likelihood_max"]
+    item["logit_length_computation_ok"] = item["logical_likelihood_computation_ok"]
+    item["logit_length_note"] = item["logical_likelihood_note"]
     
     return item
 
@@ -271,7 +283,7 @@ def _default_step_split_input() -> str:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Compute logit length between adjacent steps using Qwen3-8B."
+        description="Compute Logical Likelihood (LL) between adjacent steps using Qwen3-8B."
     )
     parser.add_argument(
         "--input-file",
@@ -284,7 +296,7 @@ def main():
         "--output-file",
         type=str,
         default=None,
-        help="Output JSONL file (default: input_file with _logit_length suffix)",
+        help="Output JSONL file (default: input_file with _ll suffix)",
     )
     parser.add_argument(
         "--model-path",
@@ -373,7 +385,7 @@ def main():
     print(f"Loaded {len(items)} segments")
     
     # Process each segment
-    print("\nComputing logit lengths...")
+    print("\nComputing Logical Likelihood scores...")
     processed = []
     verbose_samples = args.verbose_samples
     # Enable verbose if --verbose-samples is specified (even without --verbose)
@@ -392,7 +404,7 @@ def main():
     if args.output_file:
         output_path = Path(args.output_file)
     else:
-        output_path = input_path.parent / f"{input_path.stem}_logit_length{input_path.suffix}"
+        output_path = input_path.parent / f"{input_path.stem}_ll{input_path.suffix}"
     
     # Write output
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -402,18 +414,22 @@ def main():
     
     # Summary
     total = len(processed)
-    ok_count = sum(1 for x in processed if x.get("logit_length_computation_ok"))
-    max_values = [x.get("logit_length_max") for x in processed if x.get("logit_length_max") is not None]
-    avg_logit_length = sum(max_values) / len(max_values) if max_values else None
+    ok_count = sum(1 for x in processed if x.get("logical_likelihood_computation_ok"))
+    max_values = [
+        x.get("logical_likelihood_max")
+        for x in processed
+        if x.get("logical_likelihood_max") is not None
+    ]
+    avg_logical_likelihood = sum(max_values) / len(max_values) if max_values else None
     
     print(f"\n{'='*60}")
-    print("LOGIT LENGTH COMPUTATION SUMMARY")
+    print("LOGICAL LIKELIHOOD COMPUTATION SUMMARY")
     print(f"{'='*60}")
     print(f"Total segments:        {total}")
     print(f"Successfully computed:  {ok_count}")
     print(f"Failed/partial:         {total - ok_count}")
-    if avg_logit_length is not None:
-        print(f"Average logit length:   {avg_logit_length:.6f}")
+    if avg_logical_likelihood is not None:
+        print(f"Average LL:             {avg_logical_likelihood:.6f}")
     print(f"\nOutput saved to: {output_path}")
     
     return 0

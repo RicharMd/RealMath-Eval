@@ -7,6 +7,16 @@
 This repository contains the official implementation and data for the paper:  
 **"RealMath-Eval: The Evaluation Gap in Judging Human Mathematical Reasoning"**
 
+Release scope: this repository releases the processed benchmark and analysis artifacts used in the paper, including the curated `224` real student solutions, the `219` synthetic control solutions, and the derived files used in the ablation and probe analyses. It does not include the full raw candidate pool from which the benchmark subset was selected. For public release, the core benchmark JSON files are the main dataset artifacts, while prompt-conditioned robustness variants and meta-evaluation artifacts are auxiliary reproducibility materials.
+
+## Links
+
+- arXiv preprint: [XXXX.XXXXX](https://arxiv.org/abs/XXXX.XXXXX) *(replace with final arXiv ID after posting)*
+- <img src="GitHub_Mark.png" alt="GitHub" width="16"/> GitHub repository: [RicharMd/RealMath-Eval](https://github.com/RicharMd/RealMath-Eval)
+- <img src="hf-logo.png" alt="Hugging Face" width="16"/> Hugging Face dataset: [RicharMd/RealMath-Eval](https://huggingface.co/datasets/RicharMd/RealMath-Eval)
+
+The GitHub repository is the primary home for code, prompts, scripts, and auxiliary analysis artifacts. The Hugging Face dataset hosts the core benchmark files together with selected released derived data artifacts.
+
 > **Abstract:** While LLMs have achieved near-perfect performance in *solving* math problems, their ability to *evaluate* diverse human reasoning remains unproven. Our research identifies a stark **"Evaluation Gap"**: SOTA judges (e.g., Gemini 3 Pro, GPT-5) are remarkably accurate on synthetic LLM text (MSE ~1.17) but struggle significantly with real student solutions (MSE ~2.96). Through semantic embedding and generative probability probes, we reveal that this is due to a "Structural Collapse" in synthetic data versus the high-entropy "Cloud" of human thought.
 
 ## 🏗️ Codebase Origin: MASLab
@@ -22,9 +32,13 @@ RealMath-Eval/
 ├── data/                       # 📊 Benchmark Datasets
 │   ├── realmath_eval.json                 # [Main] Real Student Responses (N=224)
 │   ├── realmath_eval_llm_answer.json      # [Control] Synthetic LLM Responses (N=219)
-│   ├── realmath_eval_style_transfer.json   # [Ablation] Style-Normalized Human Data
+│   ├── realmath_eval_gemini3pro_hard_cases_ge2_style_transfer_input_72.json
+│   │                                      # [Ablation Input] 72 Gemini 3 Pro hard cases used as style-transfer inputs
+│   ├── realmath_eval_gemini3pro_hard_cases_ge2_style_transferred_72.json
+│   │                                      # [Ablation Output] 72 style-transferred hard cases used in the style ablation
 │   ├── VF_realmath_eval.json              # [Robustness] Verification-First Prompting Data
-│   └── meta_eval_data.json                 # [Analysis] Meta-Evaluation Attribution Data
+│   └── realmath_eval_gemini3pro_hard_cases_ge2_meta_eval_input_64.json
+│                                          # [Analysis Input] 64-case prompt-ready meta-evaluation task file
 ├── methods/                    # 🤖 Judge Implementations (based on MASLab)
 │   ├── cot/                    # Chain-of-Thought Judge (Baseline)
 │   └── ...
@@ -34,7 +48,8 @@ RealMath-Eval/
 ├── analysis/                   # 🔬 Analytical Probes (Section 5)
 │   ├── data/error_segment_bundle/  # Error segments + step splits (macro & micro inputs)
 │   ├── macro_embedding/        # "The Crystal vs The Cloud" (Embedding & Clustering)
-│   ├── micro_probability/      # "Generative Surprisal" (Logit Probability)
+│   ├── meta_eval/             # Meta-evaluation result artifacts for the 64-case analysis
+│   ├── micro_probability/      # "Generative Surprisal" (Logical Likelihood / LL)
 │   ├── analyze_results.py      # Basic Metrics (MSE, Failure Rate)
 │   └── requirements_analysis.txt
 ├── eval/                       # 📝 Scoring Scripts
@@ -43,6 +58,22 @@ RealMath-Eval/
 ├── inference.py                # 🚀 Main Entry Point (from MASLab)
 └── requirements.txt            # Dependencies
 ```
+
+## Public Release Layout
+
+For public release, we distinguish between core benchmark files and auxiliary reproducibility artifacts.
+
+- Core benchmark files:
+  - `realmath_eval.json`
+  - `realmath_eval_llm_answer.json`
+- Released derived artifact currently mirrored on Hugging Face:
+  - `realmath_eval_gemini3pro_hard_cases_ge2_style_transferred_72.json`
+- Auxiliary reproducibility artifacts kept in the GitHub repository:
+  - `realmath_eval_gemini3pro_hard_cases_ge2_style_transfer_input_72.json`
+  - `realmath_eval_gemini3pro_hard_cases_ge2_meta_eval_input_64.json`
+  - `analysis/meta_eval/realmath_eval_gemini3pro_hard_cases_ge2_meta_eval_labels_64.json`
+
+The `72`-case style-transfer set and the `64`-case meta-evaluation set are distinct Gemini 3 Pro hard-case subsets released separately rather than as a single pooled split.
 
 ## 🚀 Quick Start
 
@@ -68,6 +99,7 @@ $env:PYTHONUTF8 = "1"
 ### 2. Configuration (MASLab Style)
 
 Configure your model endpoints and API keys in `model_api_configs/model_api_config.json`. 
+The checked-in config file is a placeholder template only. Replace the placeholder values locally with your own credentials, and do not commit real API keys.
 Example format:
 
 ```json
@@ -82,6 +114,7 @@ Example format:
 ### 3. Reproducing Experiments
 
 All scripts write to `outputs/realmath_eval/{method}/{model}/{timestamp}/`. Run from the RealMath-Eval root directory.
+Generated files under `outputs/` and `results/` are not part of the benchmark release package and should be reproduced locally.
 
 #### 3.1 Main Evaluation Gap (Table 1 & 2)
 
@@ -123,7 +156,7 @@ python eval/scorer.py --input-file outputs/realmath_eval/synthetic_results.jsonl
 
 *Linux:* `./scripts/linux/run/judge_style_transfer.sh`
 
-Uses `realmath_eval_style_transfer.json`, CoT method; then runs `extract_style_transfer_response.py`.
+Uses `realmath_eval_gemini3pro_hard_cases_ge2_style_transfer_input_72.json`, CoT method; then runs `extract_style_transfer_response.py` to produce the corresponding style-transferred file.
 
 #### 3.3 Robustness: Verification First (Section 4)
 
@@ -147,8 +180,10 @@ Requires prior inference results. Run inference on `realmath_eval` first, then:
 
 *Direct Python:*
 ```bash
-python inference.py --method_name cot --model_name gpt-4o-mini --test_dataset_name meta_eval_data --output_path outputs/realmath_eval/meta_eval_results.jsonl
+python inference.py --method_name cot --model_name gpt-4o-mini --test_dataset_name realmath_eval_gemini3pro_hard_cases_ge2_meta_eval_input_64 --output_path outputs/realmath_eval/meta_eval_results.jsonl
 ```
+
+The file `data/realmath_eval_gemini3pro_hard_cases_ge2_meta_eval_input_64.json` is a prompt-ready task input for the attribution pipeline rather than part of the main benchmark release. The finalized category assignments used in the paper are stored separately as analysis artifacts under `analysis/meta_eval/realmath_eval_gemini3pro_hard_cases_ge2_meta_eval_labels_64.json`.
 
 ## 🔬 Deep Analysis (Section 5)
 
@@ -187,7 +222,7 @@ python run_analysis.py --model-path Qwen/Qwen3-Embedding-8B --output-dir ../../a
 *   **Output**: Heatmaps, PCA plots, Silhouette scores (saved to `--output-dir`).
 
 ### Micro-Level: Generative Surprisal
-Measure the information-theoretic "surprise" of human reasoning steps (Section 5.2).
+Measure the information-theoretic "surprise" of human reasoning steps via Logical Likelihood (LL) (Section 5.2).
 
 ```bash
 python analysis/micro_probability/compute_metrics.py \
@@ -198,6 +233,7 @@ python analysis/micro_probability/compute_metrics.py \
 
 *   **Input** (default): `analysis/data/error_segment_bundle/human_error_steps_step_split.jsonl` (must include `steps` field)
 *   **Method**: Computes the Logical Likelihood (LL) of the ground-truth next step given the context.
+*   **Output**: Writes JSONL with `logical_likelihoods` and `logical_likelihood_max` fields. Legacy `logit_length` aliases are still included for backward compatibility.
 *   **Note**: Use `--no-download` to require a local model path only (no HuggingFace download).
 
 ## 📄 Citation
