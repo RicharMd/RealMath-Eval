@@ -36,6 +36,10 @@ RealMath-Eval/
 │   ├── realmath_eval_gemini3pro_hard_cases_ge2_style_transferred_72.json
 │   │                                      # [Ablation Output] 72 style-transferred hard cases used in the style ablation
 │   ├── VF_realmath_eval.json              # [Robustness] Verification-First Prompting Data
+│   ├── realmath_eval_fewshot.json         # [Few-Shot] 196 eval items (224 − 28 hold-out demos)
+│   ├── realmath_eval_fewshot_manifest.json # Build manifest for the few-shot set
+│   ├── realmath_eval_llm_answer_fewshot.json      # [Few-Shot] Same setup on synthetic LLM answers (196 items)
+│   ├── realmath_eval_llm_answer_fewshot_manifest.json
 │   └── realmath_eval_gemini3pro_hard_cases_ge2_meta_eval_input_64.json
 │                                          # [Analysis Input] 64-case prompt-ready meta-evaluation task file
 ├── methods/                    # 🤖 Judge Implementations (based on MASLab)
@@ -121,17 +125,17 @@ Generated files under `outputs/` and `results/` are not part of the benchmark re
 
 *Windows (PowerShell):*
 ```powershell
-.\scripts\windows\run\judge_realmath_eval.ps1 -method vanilla -model gemini-3-pro-preview
-.\scripts\windows\run\judge_realmath_eval.ps1 -dataset_name realmath_eval_llm_answer -method vanilla -model gemini-3-pro-preview
+.\scripts\windows\run\judge_realmath_eval.ps1 -method cot -model gemini-3-pro-preview
+.\scripts\windows\run\judge_realmath_eval.ps1 -dataset_name realmath_eval_llm_answer -method cot -model gemini-3-pro-preview
 .\scripts\windows\run\judge_realmath_eval.ps1 -max_samples 1  # quick test
 ```
 
 *Linux (Bash):*
 ```bash
 chmod +x scripts/linux/run/*.sh
-./scripts/linux/run/judge_realmath_eval.sh realmath_eval realmath_eval vanilla gemini-3-pro-preview 0
-./scripts/linux/run/judge_realmath_eval.sh realmath_eval_llm_answer realmath_eval vanilla gemini-3-pro-preview 0
-./scripts/linux/run/judge_realmath_eval.sh realmath_eval realmath_eval vanilla gemini-3-pro-preview 1  # quick test
+./scripts/linux/run/judge_realmath_eval.sh realmath_eval realmath_eval cot gemini-3-pro-preview 0
+./scripts/linux/run/judge_realmath_eval.sh realmath_eval_llm_answer realmath_eval cot gemini-3-pro-preview 0
+./scripts/linux/run/judge_realmath_eval.sh realmath_eval realmath_eval cot gemini-3-pro-preview 1  # quick test
 # Args: dataset_name output_bucket method model max_samples
 ```
 
@@ -147,6 +151,15 @@ python inference.py --method_name cot --model_name gpt-4o-mini --test_dataset_na
 # Calculate MSE
 python eval/scorer.py --input-file outputs/realmath_eval/human_results.jsonl
 python eval/scorer.py --input-file outputs/realmath_eval/synthetic_results.jsonl
+
+# Score-difference breakdown (same role as analyze_score_differences.py)
+python analysis/analyze_results.py --report outputs/realmath_eval/cot/gemini-3-pro-preview/<timestamp>/results_realmath_evaluation_report.json
+```
+
+After **Option A** (judge script), `eval/scorer.py` runs automatically; then run:
+
+```bash
+python analysis/analyze_results.py --report outputs/realmath_eval/cot/<model>/<timestamp>/results_realmath_evaluation_report.json
 ```
 
 #### 3.2 Style Transfer (Section 4 Ablation)
@@ -183,6 +196,33 @@ python inference.py --method_name cot --model_name gpt-4o-mini --test_dataset_na
 ```
 
 The file `data/realmath_eval_gemini3pro_hard_cases_ge2_meta_eval_input_64.json` is a prompt-ready task input for the attribution pipeline rather than part of the main benchmark release. The finalized category assignments used in the paper are stored separately as analysis artifacts under `analysis/meta_eval/realmath_eval_gemini3pro_hard_cases_ge2_meta_eval_labels_64.json`.
+
+#### 3.6 Few-Shot Calibration Set (`realmath_eval_fewshot.json`)
+
+Derived from `realmath_eval.json` (224 items) **without modifying the source file**.
+
+- **196** evaluation items = 224 − **28** hold-out calibration demos (14 problems × 1 GOOD + 1 WEAK pair each).
+- Hold-out demos are **not** separate rows in the few-shot file; they appear inside each item's `query` as calibration examples with gold scores.
+- **`realmath_eval_fewshot_manifest.json`** records hold-out `source_index` values and per-problem high/mid `gt` pairs.
+
+**Construction** (run from the parent `lean_eval` repo):
+
+1. Stratified demo selection → `rebuttal_annotation/data/score_stratified_samples.json`  
+   (script: `rebuttal_annotation/extract_score_stratified_samples.py`; percentile-based high/mid pick per `problem_statement`).
+2. Build few-shot JSON:
+
+```powershell
+python datasets/build_judge_dataset.py `
+  --input-file RealMath-Eval/data/realmath_eval.json `
+  --output-name realmath_eval_fewshot `
+  --dataset_name pointing_benchmark_fewshot `
+  --stratified-file rebuttal_annotation/data/score_stratified_samples.json `
+  --output-file RealMath-Eval/data/realmath_eval_fewshot.json
+```
+
+Each evaluation item's `query` contains: GOOD example + WEAK example (same problem, with `gt`) → reference rubric → target `student_response` to score.
+
+The synthetic control corpus has a parallel few-shot set, `realmath_eval_llm_answer_fewshot.json` (196 items, built from `realmath_eval_llm_answer.json` with the same calibration demos; see `realmath_eval_llm_answer_fewshot_manifest.json`).
 
 ## 🔬 Deep Analysis (Section 5)
 

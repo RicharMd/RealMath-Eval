@@ -14,6 +14,52 @@ from pathlib import Path
 
 DATASET_NAME=None
 
+_OVERALL_SCORE_LABEL_PATTERNS = None
+
+
+def _overall_score_label_patterns():
+    """Labeled score patterns ordered for first-match extraction."""
+    global _OVERALL_SCORE_LABEL_PATTERNS
+    if _OVERALL_SCORE_LABEL_PATTERNS is not None:
+        return _OVERALL_SCORE_LABEL_PATTERNS
+
+    score_pattern = r'\d+(?:\.\d+)?'
+    num_only = r'\d+'
+    _OVERALL_SCORE_LABEL_PATTERNS = [
+        # Gemini-style: **Overall Score:** 3 / **Overall Score:** 10/10
+        rf'\*\*Overall Score:\*\*\s*({score_pattern})(?:\s*/\s*{score_pattern})?\b',
+        rf'\*\*Overall Score:\*\*\s*\[\s*({score_pattern})(?:\s*/\s*{score_pattern})?\s*\]',
+        rf'\*\*Overall Score\*\*\s*:\s*({score_pattern})(?:\s*/\s*{score_pattern})?\b',
+        rf'\*\*Overall Score\*\*:\s*({score_pattern})(?:\s*/\s*{score_pattern})?\b',
+        rf'Overall Score:\s*({score_pattern})\s*/\s*{score_pattern}\b',
+        rf'Overall Score:\s*\*\*\s*({num_only})\s*/\s*\d+\s*\*\*',
+        rf'Overall Score:\s*\[\s*({score_pattern})(?:\s*/\s*{score_pattern})?\s*\]',
+        rf'Overall Score:\s*\[({score_pattern})\]',
+        rf'Overall Score:\s*({score_pattern})\b',
+        rf'Final Score:\s*({score_pattern})(?:\s*/\s*{score_pattern})?\b',
+        rf'Total Score:\s*({score_pattern})(?:\s*/\s*{score_pattern})?\b',
+        rf'(?:An\s+)?overall score of\s+({score_pattern})\s+out of\s+{score_pattern}\b',
+        rf'(?:An\s+)?overall score of\s+({score_pattern})\b',
+    ]
+    return _OVERALL_SCORE_LABEL_PATTERNS
+
+
+def _extract_first_labeled_score(text: str):
+    """Return the earliest explicitly labeled overall score in the response."""
+    best = None
+    for pattern in _overall_score_label_patterns():
+        for match in re.finditer(pattern, text, flags=re.IGNORECASE):
+            try:
+                score = float(match.group(1))
+            except (ValueError, TypeError):
+                continue
+            if best is None or match.start() < best[0]:
+                best = (match.start(), score)
+    if best is not None:
+        return best[1]
+    return None
+
+
 def extract_score_from_response(response_text):
     """
     Extract score label from response text.
@@ -42,6 +88,10 @@ def extract_score_from_response(response_text):
     
     # Convert to string
     text = str(response_text)
+
+    labeled_score = _extract_first_labeled_score(text)
+    if labeled_score is not None:
+        return labeled_score
     
     # Priority 1: Strict labeled score (most reliable, avoids matching problem numbers, step numbers, etc.)
     # e.g. Overall Score: [6] / Overall Score: 6 / **Overall Score: [6]**
@@ -116,7 +166,6 @@ def extract_score_from_response(response_text):
         rf'<FinalResult>({score_pattern})</FinalResult>',
         rf'<OverallAssessment>({score_pattern})</OverallAssessment>',
         rf'<FinalAssessment>({score_pattern})</FinalAssessment>',
-        rf'\*\*({score_pattern})\*\*',
     ]
     
     for pattern in patterns_high_priority:

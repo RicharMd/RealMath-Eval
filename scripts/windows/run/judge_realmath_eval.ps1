@@ -5,7 +5,7 @@
 param(
     [string]$dataset_name = "realmath_eval",  # data file: data/${dataset_name}.json
     [string]$output_bucket = "realmath_eval",     # output path: outputs/${output_bucket}/...
-    [string]$method = "vanilla",
+    [string]$method = "cot",
     [string]$model = "gemini-3-pro-preview",
     [int]$max_samples = 0  # 0 = no limit, use positive int for quick test
 )
@@ -39,7 +39,7 @@ Write-Host "Output directory: $output_dir" -ForegroundColor Yellow
 Write-Host "Log file: $log_file" -ForegroundColor Yellow
 Write-Host ""
 
-# Run vanilla inference
+# Run inference
 Write-Host "Starting inference..." -ForegroundColor Cyan
 try {
     $arguments = @(

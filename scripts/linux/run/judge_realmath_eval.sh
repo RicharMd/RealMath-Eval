@@ -9,7 +9,7 @@ set -e
 # Parameters (with defaults)
 dataset_name="${1:-realmath_eval}"
 output_bucket="${2:-realmath_eval}"
-method="${3:-vanilla}"
+method="${3:-cot}"
 model="${4:-gemini-3-pro-preview}"
 max_samples="${5:-0}"
 

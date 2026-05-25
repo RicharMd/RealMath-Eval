@@ -1,0 +1,138 @@
+{
+  "source_file": "E:\\formal_reasoning_LLM_as_judge\\lean_eval\\RealMath-Eval\\data\\realmath_eval.json",
+  "stratified_file": "E:\\formal_reasoning_LLM_as_judge\\lean_eval\\rebuttal_annotation\\data\\score_stratified_samples.json",
+  "output_file": "E:\\formal_reasoning_LLM_as_judge\\lean_eval\\RealMath-Eval\\data\\realmath_eval_fewshot.json",
+  "holdout_count": 28,
+  "holdout_source_indices": [
+    9,
+    14,
+    24,
+    28,
+    35,
+    45,
+    52,
+    56,
+    64,
+    70,
+    75,
+    84,
+    88,
+    99,
+    106,
+    112,
+    120,
+    123,
+    148,
+    156,
+    163,
+    177,
+    182,
+    189,
+    195,
+    212,
+    219,
+    221
+  ],
+  "eval_count": 196,
+  "problem_count": 14,
+  "fewshot_pairs": {
+    "0ff22a542f5447ea22dfee86b4cbe02cf68276b84541ca959b0acc063ab39aa3": {
+      "question_location": "3-18",
+      "high_gt": 14,
+      "mid_gt": 9,
+      "high_sample_key": "bbd30e7ca2ed1da9e61bb811a2c872f8bf12c21277d5b6f4cd1e349a36fb021c",
+      "mid_sample_key": "2c54b3d849f474a5589bb1625fccde4cbff7b59e594c8c23b2492a3db7e2e070"
+    },
+    "1a5dd7eababe23ea6b0fbb15af5e5d2ef8df64c50f63e34a7fadd7d2c21f5217": {
+      "question_location": "3-08",
+      "high_gt": 13,
+      "mid_gt": 8.0,
+      "high_sample_key": "0f6f0487593c638c2c2e8e3377eaab3f0ecc14a4474144d6d64dce8f6e29fa93",
+      "mid_sample_key": "2138c38014e221495c480145ea7cc9eaebd109d7d6c9c4ee154e0e0706a2dabb"
+    },
+    "1b56e88c6c503919902a8a4e8f5e0d857035bca50ead43ecc4715f6612ecb810": {
+      "question_location": "3-16",
+      "high_gt": 13,
+      "mid_gt": 8,
+      "high_sample_key": "7560a217c25906eb7b2d94cf195b2e544affe5ff868b4e5c22a86296fc9093d0",
+      "mid_sample_key": "418c774fc65b03e47f4f7d521e6e34492f24ebb315bd5d44e8c5277b9b78bd8b"
+    },
+    "2e47f413920447d679713e576fd55a248a95b41fc40fbd8441756ca44c1e57fa": {
+      "question_location": "3-16",
+      "high_gt": 14,
+      "mid_gt": 7,
+      "high_sample_key": "f7d8c973952cc8f3cbc94352453e022b9e8bb28e5b7bb38eeebfa0c8a8493933",
+      "mid_sample_key": "e2e61ee2af86e4965cfdab1f2068d4f73936db009ba4aaf184b98e5b95fd3fa7"
+    },
+    "2f8b6cea2158f6d506d496dc427bec3a9dae6be55eb22670e810ed7f19791a37": {
+      "question_location": "3-18",
+      "high_gt": 14,
+      "mid_gt": 6,
+      "high_sample_key": "214714989b56c06a96f6101ad5a5ced91a00f3530c4ef6788168d07446782727",
+      "mid_sample_key": "78c7883d90d6b748fbf9cc7018d687e7807f1e6d559424199691ba68bb8e8813"
+    },
+    "4bdf8fa9324273c71694d82eb372ff2faf8bb4614d2a5a2b8d75459a9b05d6fc": {
+      "question_location": "3-18",
+      "high_gt": 14,
+      "mid_gt": 9,
+      "high_sample_key": "3549d60ee88ca073835b36e8394be4e0eb5267c398a0621dde5d4bfb85ecceb5",
+      "mid_sample_key": "7a8b6bbcf8ddd25ab0ef3a291f720d6b75030be850f5ef757ac2ccc96722fa63"
+    },
+    "529970cc818a713616a24b5b32906872b258da8e730a847dddd2c7a7fc86a98d": {
+      "question_location": "3-17",
+      "high_gt": 13,
+      "mid_gt": 10,
+      "high_sample_key": "ccb2a5c57ad0dac0f12a992ed60c240725777d3d98eedf4d62f556595c0c55ca",
+      "mid_sample_key": "8e6552a78a102f34bcf5bd387b5e3a07d291a09d6e8fe28ca9a82bfc4a0ff039"
+    },
+    "7733770f11632cf6cc6593069fd9af03ef33b5c973067004f1c061786fb5f89d": {
+      "question_location": "3-17",
+      "high_gt": 14,
+      "mid_gt": 5,
+      "high_sample_key": "5c7de4439fb7f086aff9073acd0642c90b814347e19cbcb8c8a66967ff672c83",
+      "mid_sample_key": "2ccf607992c39b77ff1b9228b9c2d83b75622d5f81a4fafc0c37e2b60b45cbf1"
+    },
+    "9943210bd0788058793e0b9a47a1acf395b50fbad4ee818e2acf013669405fa4": {
+      "question_location": "3-09",
+      "high_gt": 7,
+      "mid_gt": 2,
+      "high_sample_key": "ffa8643fff51f949609bc8b5a9b36aeda62646bd3666f629c5bc907d1e10588b",
+      "mid_sample_key": "b3474d6d358e972d82bc872236cc3c75b594768b41cc52a572d7017cb7bb6bea"
+    },
+    "acf9445fe13bd81b0eb1b0b84e754676222b492d44c3ffcf1c89b38c8148a46a": {
+      "question_location": "3-20",
+      "high_gt": 15,
+      "mid_gt": 8,
+      "high_sample_key": "171671bff4d79c00294ed65e5a40b11dd880b60ae4b4d4e3ecdc527c589ac081",
+      "mid_sample_key": "bb13b1371c95186b39345e956b2e1d3fdaf34a515ecdd5db860f18074b88c453"
+    },
+    "c004609c324172ea8ac1af7c4c9b725a27ac128832fb35d8399ae27b2a6890c8": {
+      "question_location": "3-21",
+      "high_gt": 9,
+      "mid_gt": 5.0,
+      "high_sample_key": "857277ee7b72031e3a56e226d468179e0716c987a124e50973a33094f5676c54",
+      "mid_sample_key": "79921c62722bdcdb3b95e2a8e85ed994dc17292697742924bda77816de206864"
+    },
+    "dbcf7eb1c419b2fdc31e4aeb03a299ec92d28c8ef3dc0f122bff57a7329f36b4": {
+      "question_location": "3-07",
+      "high_gt": 10,
+      "mid_gt": 8,
+      "high_sample_key": "429e76eaf4ec7aa874b5210e0d87f79f92e80e4c6c0f689ed45f83c1061b6509",
+      "mid_sample_key": "bd33b0f60e177f5fb2923c649729183744d23d9d340b74a39898f9806203244a"
+    },
+    "decd006cf8ece3cbe492138f5fb4e44fb3a76fd0874fcf2c371f3aba7e781fb1": {
+      "question_location": "3-17",
+      "high_gt": 11,
+      "mid_gt": 5,
+      "high_sample_key": "2f577c5c950353ae6151e0b5029d2e0375c5da2f45a1795df34c2a6f180781cd",
+      "mid_sample_key": "904803abc6a305ee00161e284c789326baf9d4db2cc23417639e475697833e01"
+    },
+    "fe41909754cb0901a6eee342da6f15f096c6fdf947929826c0535ddfdfc266ca": {
+      "question_location": "3-19",
+      "high_gt": 14,
+      "mid_gt": 8,
+      "high_sample_key": "0cbe75ee2ce1ac6575e0110b91f8199f7a2fc7234ac620398f9ff947dff39314",
+      "mid_sample_key": "425140430b82166ed45390ce06cf124fa44af8f292f2a4a48d4444e31fce0062"
+    }
+  }
+}
