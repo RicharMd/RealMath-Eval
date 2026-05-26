@@ -7,7 +7,7 @@
 This repository contains the official implementation and data for the paper:  
 **"RealMath-Eval: The Evaluation Gap in Judging Human Mathematical Reasoning"**
 
-Release scope: this repository releases the processed benchmark and analysis artifacts used in the paper, including the curated `224` real student solutions, the `219` synthetic control solutions, and the derived files used in the ablation and probe analyses. It does not include the full raw candidate pool from which the benchmark subset was selected. For public release, the core benchmark JSON files are the main dataset artifacts, while prompt-conditioned robustness variants and meta-evaluation artifacts are auxiliary reproducibility materials.
+Release scope: this repository releases the processed benchmark and analysis artifacts used in the paper, including the curated `224` real student solutions, the `224` synthetic control solutions, and the derived files used in the ablation and probe analyses. It does not include the full raw candidate pool from which the benchmark subset was selected. For public release, the core benchmark JSON files are the main dataset artifacts, while prompt-conditioned robustness variants and meta-evaluation artifacts are auxiliary reproducibility materials.
 
 ## Links
 
@@ -30,7 +30,7 @@ The repository is organized to support the reproduction of the main benchmark re
 RealMath-Eval/
 ├── data/                       # 📊 Benchmark Datasets
 │   ├── realmath_eval.json                 # [Main] Real Student Responses (N=224)
-│   ├── realmath_eval_llm_answer.json      # [Control] Synthetic LLM Responses (N=219)
+│   ├── realmath_eval_llm_answer.json      # [Control] Synthetic LLM Responses (N=224)
 │   ├── realmath_eval_gemini3pro_hard_cases_ge2_style_transfer_input_72.json
 │   │                                      # [Ablation Input] 72 Gemini 3 Pro hard cases used as style-transfer inputs
 │   ├── realmath_eval_gemini3pro_hard_cases_ge2_style_transferred_72.json
