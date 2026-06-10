@@ -281,7 +281,7 @@ If you use RealMath-Eval in your research, please cite our paper:
 
 ```bibtex
 @article{realmath_eval_2026,
-  title={RealMath-Eval: The Evaluation Gap in Judging Human Mathematical Reasoning},
+  title={RealMath-Eval: Why SOTA Judges Struggle with Real Human Reasoning},
   author={RealMath-Eval Team},
   journal={arXiv preprint},
   year={2026}
